@@ -19,7 +19,7 @@ class Bot(object):
         self.timeout_time = None
 
         # Heuristic values
-        self.heuristic_values = {'1-row': 0, '2-row': 1, '3-row': 4, '4-row': 100}
+        self.heuristic_values = {'1-row': 0, '2-row': 3, '3-row': 20, '4-row': 100}
 
         # Whether to show debug output in stderr
         self.DEBUG_OUTPUT = False
@@ -75,8 +75,8 @@ class Bot(object):
         self.print_debug('time left:' + str(time_left))
         self.update_timeout_time(time_left)
 
-        # Places disk in middle if player 1
-        if self.round == 1 and self.bot_id() == 1:
+        # Places disk in middle as first move if available
+        if self.round in [1, 2] and (self.bot_id() == 1 or self.field[5][3] == 0):
             return self.place_token(3)
 
         depth = 3
@@ -136,6 +136,7 @@ class Bot(object):
         """Returns board with token placed in specific column"""
         board = np.copy(board)
         if self.can_move(column):
+            # Since the bottom row is index 5, starts at 5 and decrements through 0
             for r in range(self.rows() - 1, -1, -1):
                 if board[r][column] == 0:
                     board[r][column] = player_id
@@ -144,6 +145,7 @@ class Bot(object):
     def eval_board(self, board):
         """Returns the heuristic value of a board state"""
         # TODO: Use genetic algorithm to determine weights? https://goo.gl/T57ELB
+        # TODO: In situations such as 1,1,1,0, the bot won't place a token in 0 and take the win.
         totals = {self.bot_id(): 0, self.opponent_id(): 0}
 
         # Checking sequences
@@ -154,16 +156,16 @@ class Bot(object):
             # Bottom left to top right diagonals going like /
             neg_diagonals = [np.diagonal(board[::-1], x) for x in range(-2, 4)]
 
-            orientations = (
+            board_orientations = (
                 board,
                 transposed_board,
                 pos_diagonals,
                 neg_diagonals
             )
 
-            for orientation in orientations:
-                for line in orientation:
-                    for sequence_len in bh.sequences(line, player_id):
+            for orientation in board_orientations:
+                for row in orientation:
+                    for sequence_len in bh.sequences(row, player_id):
                         totals[player_id] += self.heuristic_values[str(sequence_len) + '-row']
 
         return totals[self.bot_id()] - totals[self.opponent_id()]
