@@ -22,7 +22,7 @@ class Bot(object):
         self.heuristic_values = {'1-row': 0, '2-row': 3, '3-row': 20, '4-row': 100}
 
         # Whether to show debug output in stderr
-        self.DEBUG_OUTPUT = False
+        self.DEBUG_OUTPUT = True
 
     def print_debug(self, value):
         if self.DEBUG_OUTPUT:
@@ -80,8 +80,10 @@ class Bot(object):
             return self.place_token(3)
 
         depth = 3
+        start = time.time()
         minimax = self.minimax(depth=depth, node=np.copy(self.field), max_player=True)
         print 'Column ' + str(minimax[1]) + ' has a heuristic of ' + str(minimax[0])
+        print time.time() - start
 
         return self.place_token(minimax[1])
 
@@ -102,6 +104,7 @@ class Bot(object):
             # Loads the possible moves
             moves = self.possible_moves(board=node, player_id=self.bot_id())
             for i in range(len(moves)):
+
                 # Goes down one node further to evaluate the value of the parent node (the current node)
                 value = self.minimax(depth=depth - 1, node=moves[i], max_player=False)[0]
 
@@ -128,8 +131,9 @@ class Bot(object):
         """Returns array or possible moves given a board state"""
         moves = []
         for c in range(self.columns()):
-            if self.can_move(column=c):
-                moves.append(self.simulate_move(column=c, board=board, player_id=player_id))
+            move = self.simulate_move(column=c, board=board, player_id=player_id)
+            if move is not None:
+                moves.append(move)
         return moves
 
     def simulate_move(self, column, board, player_id):
@@ -145,9 +149,11 @@ class Bot(object):
     def eval_board(self, board):
         """Returns the heuristic value of a board state"""
         # TODO: Use genetic algorithm to determine weights? https://goo.gl/T57ELB
-        # TODO: In situations such as 1,1,1,0, the bot won't place a token in 0 and take the win.
+        # TODO: In situations such as 1,1,1,0,2 the bot won't place a token in 0 and take the win.
         totals = {self.bot_id(): 0, self.opponent_id(): 0}
 
+        if board is None:
+            print board
         # Checking sequences
         for player_id in totals.keys():
             transposed_board = [list(x) for x in zip(*board)]
