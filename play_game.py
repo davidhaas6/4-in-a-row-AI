@@ -3,7 +3,6 @@ import numpy as np
 import bot
 from random import randint
 import time
-import pyautogui
 
 NONE = '0'
 player_1 = '1'
