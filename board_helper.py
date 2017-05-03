@@ -34,9 +34,7 @@ def sequences(arr, val):
                     # The index of the last item in the sequence
                     end_val = j - 1
                     # Only save the sequence if it has a 0 on either side of it
-                    if arr[j] == 0 or arr[i - 1] == 0:
-                        seq[seq_index] = seq[seq_index]
-                    else:
+                    if not (arr[j] == 0 or arr[i - 1] == 0) and seq[seq_index] < 4:
                         seq.pop()
                     break
             # If the sequence goes until the end of the array, remove it unless it has a 0 before it

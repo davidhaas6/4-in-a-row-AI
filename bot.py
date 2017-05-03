@@ -22,7 +22,7 @@ class Bot(object):
         self.heuristic_values = {'1-row': 0, '2-row': 3, '3-row': 20, '4-row': 100}
 
         # Whether to show debug output in stderr
-        self.DEBUG_OUTPUT = True
+        self.DEBUG_OUTPUT = False
 
     def print_debug(self, value):
         if self.DEBUG_OUTPUT:
@@ -99,7 +99,7 @@ class Bot(object):
         # ---MAX FUNCTION---
         if max_player:
             # Sets best_value to lowest possible value (opponent win)
-            best_value = -self.heuristic_values['4-row']
+            best_value = -self.heuristic_values['4-row'] * 100
 
             # Loads the possible moves
             moves = self.possible_moves(board=node, player_id=self.bot_id())
@@ -117,7 +117,7 @@ class Bot(object):
         # ---MIN FUNCTION---
         else:
             # Sets best_value to highest possible value (my win)
-            best_value = self.heuristic_values['4-row']
+            best_value = self.heuristic_values['4-row'] * 100
 
             moves = self.possible_moves(board=node, player_id=self.opponent_id())
             for i in range(len(moves)):
