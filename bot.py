@@ -67,8 +67,8 @@ class Bot(object):
             self.field = np.fromstring(value.replace(';', ','), dtype=int, sep=',').reshape(self.rows(), self.columns())
             # self.print_debug(self.field)
 
-    def can_move(self, column):
-        return self.field[0][column] == 0
+    def can_move(self, board, column):
+        return board[0][column] == 0
 
     def make_turn(self, time_left):
         """Decides where to place the token."""
@@ -113,12 +113,12 @@ class Bot(object):
             for i in range(len(moves)):
 
                 # Goes down one node further to evaluate the value of the parent node (the current node)
-                value = self.minimax(depth=depth - 1, node=moves[i], max_player=False)[0]
+                value = self.minimax(depth=depth - 1, node=moves[i][0], max_player=False)[0]
 
                 # Sets the parent node to the highest value
                 if value > best_value:
                     best_value = value
-                    best_move = i
+                    best_move = moves[i][1]
             return best_value, best_move
 
         # ---MIN FUNCTION---
@@ -128,10 +128,10 @@ class Bot(object):
 
             moves = self.possible_moves(board=node, player_id=self.opponent_id())
             for i in range(len(moves)):
-                value = self.minimax(depth=depth - 1, node=moves[i], max_player=True)[0]
+                value = self.minimax(depth=depth - 1, node=moves[i][0], max_player=True)[0]
                 if value < best_value:
                     best_value = value
-                    best_move = i
+                    best_move = moves[i][1]
             return best_value, best_move
 
     def possible_moves(self, board, player_id):
@@ -140,13 +140,13 @@ class Bot(object):
         for c in range(self.columns()):
             move = self.simulate_move(column=c, board=board, player_id=player_id)
             if move is not None:
-                moves.append(move)
+                moves.append((move, c))
         return moves
 
     def simulate_move(self, column, board, player_id):
         """Returns board with token placed in specific column"""
         board = np.copy(board)
-        if self.can_move(column):
+        if self.can_move(board, column):
             # Since the bottom row is index 5, starts at 5 and decrements through 0
             for r in range(self.rows() - 1, -1, -1):
                 if board[r][column] == 0:
