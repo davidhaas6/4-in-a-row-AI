@@ -22,7 +22,7 @@ class Bot(object):
         self.heuristic_values = {'1-row': 0, '2-row': 3, '3-row': 20, '4-row': 100}
 
         # Whether to show debug output in stderr
-        self.DEBUG_OUTPUT = False
+        self.DEBUG_OUTPUT = True
 
     def print_debug(self, value):
         if self.DEBUG_OUTPUT:
@@ -65,7 +65,7 @@ class Bot(object):
             self.round = int(value)
         elif args == 'field':
             self.field = np.fromstring(value.replace(';', ','), dtype=int, sep=',').reshape(self.rows(), self.columns())
-            self.print_debug(self.field)
+            # self.print_debug(self.field)
 
     def can_move(self, column):
         return self.field[0][column] == 0
@@ -79,13 +79,20 @@ class Bot(object):
         if self.round in [1, 2] and (self.bot_id() == 1 or self.field[5][3] == 0):
             return self.place_token(3)
 
-        depth = 3
         start = time.time()
-        minimax = self.minimax(depth=depth, node=np.copy(self.field), max_player=True)
-        print 'Column ' + str(minimax[1]) + ' has a heuristic of ' + str(minimax[0])
-        print time.time() - start
+        minimax = self.minimax(depth=3, node=np.copy(self.field), max_player=True)
+        self.print_debug('Column ' + str(minimax[1]) + ' has a heuristic of ' + str(minimax[0]))
+        self.print_debug('Turn time: ' + str(time.time() - start))
 
         return self.place_token(minimax[1])
+
+    def optimal_depth(self):
+        if self.time_left() > 6000 and self.round > 3:
+            return 5
+        elif self.time_left() > 1200:
+            return 4
+        else:
+            return 3
 
     def minimax(self, depth, node, max_player):
         # TODO Store the explored nodes to save CPU time?
@@ -145,11 +152,12 @@ class Bot(object):
                 if board[r][column] == 0:
                     board[r][column] = player_id
                     return board
+        return None
 
     def eval_board(self, board):
         """Returns the heuristic value of a board state"""
         # TODO: Use genetic algorithm to determine weights? https://goo.gl/T57ELB
-        # TODO: In situations such as 1,1,1,0,2 the bot won't place a token in 0 and take the win.
+        # TODO: Save board states w/ their value to save CPU time?
         totals = {self.bot_id(): 0, self.opponent_id(): 0}
 
         if board is None:
@@ -158,9 +166,9 @@ class Bot(object):
         for player_id in totals.keys():
             transposed_board = [list(x) for x in zip(*board)]
             # Top left to bottom right diagonals going like \
-            pos_diagonals = [np.diagonal(board, x) for x in range(-2, 4)]
+            pos_diagonals = bh.get_major_diagonals(board, x_range=3, y_range=2)
             # Bottom left to top right diagonals going like /
-            neg_diagonals = [np.diagonal(board[::-1], x) for x in range(-2, 4)]
+            neg_diagonals = bh.get_minor_diagonals(board, x_range=3, y_range=2)
 
             board_orientations = (
                 board,
@@ -195,6 +203,7 @@ class Bot(object):
     def run(self):
         """ Reads and translates the engine input into actions. """
         while not stdin.closed:
+            raw_input('>')
             raw_line = stdin.readline()
 
             # End of file check
