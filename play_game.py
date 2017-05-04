@@ -3,6 +3,7 @@ import numpy as np
 import bot
 from random import randint
 import time
+import cProfile
 
 NONE = '0'
 player_1 = '1'
@@ -124,7 +125,9 @@ if __name__ == '__main__':
         g.print_board()
 
         if turn == bot_id:
-            row = write('action move 10000')
+            prof = cProfile.Profile()
+            row = prof.runcall(write, 'action move 10000')
+            prof.dump_stats('stats')
         else:
             row = input('Your turn:')
 
