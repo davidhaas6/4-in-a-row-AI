@@ -80,7 +80,7 @@ class Bot(object):
             return self.place_token(3)
 
         start = time.time()
-        minimax = self.minimax(depth=3, node=np.copy(self.field), max_player=True)
+        minimax = self.minimax(depth=self.optimal_depth(), node=np.copy(self.field), max_player=True)
         self.print_debug('Column ' + str(minimax[1]) + ' has a heuristic of ' + str(minimax[0]))
         self.print_debug('Turn time: ' + str(time.time() - start))
 
