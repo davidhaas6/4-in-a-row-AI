@@ -114,21 +114,21 @@ if __name__ == '__main__':
     your_id = str(randint(1, 2))
     bot_id = '2' if your_id == '1' else '1'
     write("settings your_botid " + str(bot_id))
-
+    time.sleep(.2)
     print '*** YOU ARE PLAYER ' + your_id + ' ***'
 
+    row = -1
     while g.check_for_win() is None:
         write_updates(format_board(g.get_board()), round_num)
-        row = -1
-        time.sleep(.2)
-        print ''
-        g.print_board()
 
         if turn == bot_id:
             prof = cProfile.Profile()
             row = prof.runcall(write, 'action move 10000')
             prof.dump_stats('stats')
         else:
+            time.sleep(.1)
+            print ''
+            g.print_board()
             row = input('Your turn:')
 
         g.insert(int(row), turn)
