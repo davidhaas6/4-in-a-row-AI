@@ -11,21 +11,57 @@ def contains(parent_list, sub_list):
     return False
 
 
+def get_major_diagonals(arr2d, x_range, y_range):
+    """
+    Returns major diagonals (they go like this: \)
+    @:param: x_range The number columns to the right (of arr[0][0]) to get the diagonals of
+    @:param: y_range The number of rows down (from arr[0][0]) to get the diagonals of
+    """
+
+    rows, columns = 6, 7
+
+    diagonals = [[arr2d[r + y_offset][r] for r in range(rows - y_offset)]for y_offset in range(y_range, -1, -1)]
+    diagonals += [[arr2d[r][r + x_offset] for r in range(rows - (x_offset - 1))] for x_offset in range(1, x_range + 1)]
+    '''
+    for y_offset in range(y_range, -1, -1):
+        for r in range(rows - y_offset):
+            temp_diag += [arr2d[r + y_offset][r]]
+        diagonals += [temp_diag]
+        temp_diag = []
+    for x_offset in range(1, x_range + 1):
+        for r in range(rows - (x_offset - 1)):
+            temp_diag += [arr2d[r][r + x_offset]]
+        diagonals += [temp_diag]
+        temp_diag = []
+    '''
+    return diagonals
+
+
+def get_minor_diagonals(arr2d, x_range, y_range):
+    """
+    Returns major diagonals (they go like this: /)
+    @:param: x_range The number columns to the right (of bottom left) to get the diagonals of
+    @:param: y_range The number of rows up (from bottom left) to get the diagonals of
+    """
+    return get_major_diagonals(arr2d[::-1], x_range, y_range)
+
+
 def sequences(arr, val):
     """Returns array of sequence lengths of a value in an array"""
     # List of lengths of sequences
     seq = []
     i = 0
-    while i < len(arr) - 1:
+    array_length = len(arr)  # Saved as variable to reduce len() calls
+    while i < array_length - 1:
         # If there's a row of at least two, start counting more
-        if np.array_equal(arr[i:i + 2], [val, val]):
+        if arr[i] == arr[i + 1] == val:
             # Initialize the sequence length to two
             seq += [2]
-            end_val = len(arr)
+            end_val = array_length
             seq_index = len(seq) - 1
 
             # See if sequence is longer than two
-            for j in range(i + 2, len(arr)):
+            for j in range(i + 2, array_length):
                 # Increment the sequence length if it's continued
                 if arr[j] == val:
                     seq[seq_index] += 1
@@ -38,7 +74,7 @@ def sequences(arr, val):
                         seq.pop()
                     break
             # If the sequence goes until the end of the array, remove it unless it has a 0 before it
-            if end_val == len(arr) and arr[i - 1] != 0:
+            if end_val == array_length and arr[i - 1] != 0:
                 seq.pop()
             # Set the for loop to start where the sequence ended
             i = end_val
@@ -53,8 +89,8 @@ def is_game_won(board):
     lines = (
         board,  # row
         zip(*board),  # columns
-        [np.diagonal(board, x) for x in range(-2, 4)],  # positive diagonals
-        [np.diagonal(board[::-1], x) for x in range(-2, 4)]  # negative diagonals
+        get_major_diagonals(board, x_range=3, y_range=2),  # positive diagonals
+        get_minor_diagonals(board, x_range=3, y_range=2)  # negative diagonals
     )
 
     for line in chain(*lines):
