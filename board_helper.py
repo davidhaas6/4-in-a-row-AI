@@ -48,6 +48,7 @@ def get_minor_diagonals(arr2d, x_range, y_range):
 
 def sequences(arr, val):
     """Returns array of sequence lengths of a value in an array"""
+    # TODO: OPTIMIZE!!!!!!!
     # List of lengths of sequences
     seq = []
     i = 0

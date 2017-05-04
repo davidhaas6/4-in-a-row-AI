@@ -101,7 +101,7 @@ class Bot(object):
         if depth == 0 or bh.is_game_won(node):
             return [self.eval_board(board=node)]
 
-        best_move = 3
+        best_column = 3
 
         # ---MAX FUNCTION---
         if max_player:
@@ -110,16 +110,16 @@ class Bot(object):
 
             # Loads the possible moves
             moves = self.possible_moves(board=node, player_id=self.bot_id())
-            for i in range(len(moves)):
+            for move in moves:
 
                 # Goes down one node further to evaluate the value of the parent node (the current node)
-                value = self.minimax(depth=depth - 1, node=moves[i][0], max_player=False)[0]
+                value = self.minimax(depth=depth - 1, node=move[0], max_player=False)[0]
 
                 # Sets the parent node to the highest value
                 if value > best_value:
                     best_value = value
-                    best_move = moves[i][1]
-            return best_value, best_move
+                    best_column = move[1]
+            return best_value, best_column
 
         # ---MIN FUNCTION---
         else:
@@ -127,12 +127,12 @@ class Bot(object):
             best_value = self.heuristic_values['4-row'] * 100
 
             moves = self.possible_moves(board=node, player_id=self.opponent_id())
-            for i in range(len(moves)):
-                value = self.minimax(depth=depth - 1, node=moves[i][0], max_player=True)[0]
+            for move in moves:
+                value = self.minimax(depth=depth - 1, node=move[0], max_player=True)[0]
                 if value < best_value:
                     best_value = value
-                    best_move = moves[i][1]
-            return best_value, best_move
+                    best_column = move[1]
+            return best_value, best_column
 
     def possible_moves(self, board, player_id):
         """Returns array or possible moves given a board state"""
