@@ -75,7 +75,7 @@ def sequences(arr, val):
                         seq.pop()
                     break
             # If the sequence goes until the end of the array, remove it unless it has a 0 before it
-            if end_val == array_length and arr[i - 1] != 0:
+            if end_val == array_length and arr[i - 1] != 0 and seq[seq_index] < 4:
                 seq.pop()
             # Set the for loop to start where the sequence ended
             i = end_val

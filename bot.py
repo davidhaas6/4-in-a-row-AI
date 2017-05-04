@@ -19,7 +19,7 @@ class Bot(object):
         self.timeout_time = None
 
         # Heuristic values
-        self.heuristic_values = {'1-row': 0, '2-row': 3, '3-row': 20, '4-row': 100}
+        self.heuristic_values = {'1-row': 0, '2-row': 3, '3-row': 20, '4-row': 1000}
 
         # Whether to show debug output in stderr
         self.DEBUG_OUTPUT = True
@@ -84,6 +84,8 @@ class Bot(object):
         self.print_debug('Column ' + str(minimax[1]) + ' has a heuristic of ' + str(minimax[0]))
         self.print_debug('Turn time: ' + str(time.time() - start))
 
+        # self.print_debug(minimax[2])
+
         return self.place_token(minimax[1])
 
     def optimal_depth(self):
@@ -102,7 +104,7 @@ class Bot(object):
             return [self.eval_board(board=node)]
 
         best_column = 3
-
+        # possible_moves = []
         # ---MAX FUNCTION---
         if max_player:
             # Sets best_value to lowest possible value (opponent win)
@@ -114,7 +116,8 @@ class Bot(object):
 
                 # Goes down one node further to evaluate the value of the parent node (the current node)
                 value = self.minimax(depth=depth - 1, node=move[0], max_player=False)[0]
-
+                # if depth == 5:
+                #   possible_moves += [[move[1], value]]
                 # Sets the parent node to the highest value
                 if value > best_value:
                     best_value = value
@@ -203,7 +206,6 @@ class Bot(object):
     def run(self):
         """ Reads and translates the engine input into actions. """
         while not stdin.closed:
-            raw_input('>')
             raw_line = stdin.readline()
 
             # End of file check
