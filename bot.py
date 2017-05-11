@@ -2,6 +2,7 @@ from sys import stdin, stdout, stderr
 import numpy as np
 import time as time
 import board_helper as bh
+from itertools import chain
 
 
 class Bot(object):
@@ -84,12 +85,12 @@ class Bot(object):
         self.print_debug('Column ' + str(minimax[1]) + ' has a heuristic of ' + str(minimax[0]))
         self.print_debug('Turn time: ' + str(time.time() - start))
 
-        # self.print_debug(minimax[2])
+        self.print_debug(minimax[2])
 
         return self.place_token(minimax[1])
 
     def optimal_depth(self):
-        if self.time_left() > 6000 and self.round > 3:
+        if self.time_left() > 5000 and self.round > 3:
             return 5
         elif self.time_left() > 1200:
             return 4
@@ -99,12 +100,20 @@ class Bot(object):
     def minimax(self, depth, node, max_player):
         # TODO Store the explored nodes to save CPU time?
 
+        # All possible orientations of the board
+        board_orientations = (
+            node,
+            zip(*node),
+            bh.get_major_diagonals(node, x_range=3, y_range=2),
+            bh.get_minor_diagonals(node, x_range=3, y_range=2)
+        )
+
         # If the node is a leaf or terminal node, return the value (start going back up the recursive function)
-        if depth == 0 or bh.is_game_won(node):
-            return [self.eval_board(board=node)]
+        if depth == 0 or bh.is_game_won(board_orientations):
+            return [self.eval_board(board_orientations=board_orientations)]
 
         best_column = 3
-        # possible_moves = []
+        possible_moves = []
         # ---MAX FUNCTION---
         if max_player:
             # Sets best_value to lowest possible value (opponent win)
@@ -116,13 +125,13 @@ class Bot(object):
 
                 # Goes down one node further to evaluate the value of the parent node (the current node)
                 value = self.minimax(depth=depth - 1, node=move[0], max_player=False)[0]
-                # if depth == 5:
-                #   possible_moves += [[move[1], value]]
+                if depth == 5:
+                    possible_moves += [[move[1], value]]
                 # Sets the parent node to the highest value
                 if value > best_value:
                     best_value = value
                     best_column = move[1]
-            return best_value, best_column
+            return best_value, best_column, possible_moves
 
         # ---MIN FUNCTION---
         else:
@@ -157,34 +166,43 @@ class Bot(object):
                     return board
         return None
 
-    def eval_board(self, board):
-        """Returns the heuristic value of a board state"""
+    def eval_board(self, board_orientations):
+        """
+        Returns the heuristic value of a board state
+        @:param row_orientations: Every possible orientation of the board (regular, rotated, only major/minor diagonals)
+        """
         # TODO: Use genetic algorithm to determine weights? https://goo.gl/T57ELB
         # TODO: Save board states w/ their value to save CPU time?
         totals = {self.bot_id(): 0, self.opponent_id(): 0}
 
-        if board is None:
-            print board
-        # Checking sequences
-        for player_id in totals.keys():
-            transposed_board = [list(x) for x in zip(*board)]
-            # Top left to bottom right diagonals going like \
-            pos_diagonals = bh.get_major_diagonals(board, x_range=3, y_range=2)
-            # Bottom left to top right diagonals going like /
-            neg_diagonals = bh.get_minor_diagonals(board, x_range=3, y_range=2)
-
-            board_orientations = (
-                board,
-                transposed_board,
-                pos_diagonals,
-                neg_diagonals
-            )
-
-            for orientation in board_orientations:
-                for row in orientation:
+        for row in chain(*board_orientations):
+            sequence_both = bh.sequences_of_each(row)
+            for player_id in [1, 2]:
+                for sequence_len in sequence_both[player_id - 1]:
+                    totals[player_id] += self.heuristic_values[str(sequence_len) + '-row']
+        '''
+        for orientation in board_orientations:
+            for row in orientation:
+                for player_id in [1, 2]:
                     for sequence_len in bh.sequences(row, player_id):
                         totals[player_id] += self.heuristic_values[str(sequence_len) + '-row']
 
+        '''
+        '''
+        for board_orientation in board_orientations:
+            for row in board_orientation:
+                sequence_both = bh.sequences_of_each(row)
+                for player_id in totals.keys():
+                    for sequence_len in sequence_both[player_id - 1]:
+                        totals[player_id] += self.heuristic_values[str(sequence_len) + '-row']
+        '''
+        '''
+        sequences = bh.seq_short(board_orientations)
+        for player_id in [1, 2]:
+            for s_len in sequences[player_id - 1]:
+                s_len = 4 if s_len > 4 else s_len
+                totals[player_id] += self.heuristic_values[str(s_len) + '-row']
+        '''
         return totals[self.bot_id()] - totals[self.opponent_id()]
 
     def place_token(self, column):
