@@ -5,7 +5,7 @@ file_name = 'stats'
 
 p = pstats.Stats(file_name)
 
-metrics = ['tottime', 'cumulative']
+metrics = ['tottime']
 
 for met in metrics:
     p.sort_stats(met).print_stats()
