@@ -98,7 +98,7 @@ class Bot(object):
         return self.place_token(minimax[1])
 
     def optimal_depth(self):
-        if self.time_left() > 5000 and self.round > 3:
+        if self.time_left() > 3500 and self.round > 3:
             return 5
         elif self.time_left() > 1200:
             return 4
