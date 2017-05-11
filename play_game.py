@@ -130,7 +130,8 @@ if __name__ == '__main__':
             print ''
             g.print_board()
             row = input('Your turn:')
-
+            while not (0 <= row <= 6):
+                row = input('Your turn:')
         g.insert(int(row), turn)
         turn = player_2 if turn == player_1 else player_1
         round_num += 1
