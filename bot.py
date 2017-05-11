@@ -119,7 +119,6 @@ class Bot(object):
         # If the node is a leaf or terminal node, return the value (start going back up the recursive function)
         if depth == 0 or bh.is_game_won(board_orientations):
             return [self.eval_board(board_orientations=board_orientations)]
-
         best_column = 3
         possible_moves = []
         # ---MAX FUNCTION---
@@ -129,8 +128,9 @@ class Bot(object):
 
             # Loads the possible moves
             moves = self.possible_moves(board=node, player_id=self.bot_id())
+            if moves:
+                best_column = moves[0][1]
             for move in moves:
-
                 # Goes down one node further to evaluate the value of the parent node (the current node)
                 value = self.minimax(depth=depth - 1, node=move[0], max_player=False)[0]
                 if depth == 5:
@@ -147,6 +147,8 @@ class Bot(object):
             best_value = self.heuristic_values['4-row'] * 100
 
             moves = self.possible_moves(board=node, player_id=self.opponent_id())
+            if moves:
+                best_column = moves[0][1]
             for move in moves:
                 value = self.minimax(depth=depth - 1, node=move[0], max_player=True)[0]
                 if value < best_value:
