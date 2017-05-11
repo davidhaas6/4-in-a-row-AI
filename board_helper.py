@@ -164,11 +164,9 @@ def seq_short(board_orientations):
                 # If it starts at beginning, check if followed by a 0 (empty space)
                 if i == 0 and groups[i + 1][0] == 0:
                     seq[player_id - 1] += [sequence_length]
-
                 # If it's in the middle, check if a 0 is on either side
                 elif (0 < i < num_groups - 1) and (groups[i + 1][0] == 0 or groups[i - 1][0] == 0):
                     seq[player_id - 1] += [sequence_length]
-
                 # If it's at the end, check if it's 4 in a row, or has a 0 before it
                 elif i == num_groups - 1 and (groups[i - 1][0] == 0 or sequence_length >= 4):
                     seq[player_id - 1] += [sequence_length]
