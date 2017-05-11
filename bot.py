@@ -25,6 +25,9 @@ class Bot(object):
         # Whether to show debug output in stderr
         self.DEBUG_OUTPUT = True
 
+        self.tot_time = 0.
+        self.num_turns = 0
+
     def print_debug(self, value):
         if self.DEBUG_OUTPUT:
             stderr.write("* " + str(value) + '\n')
@@ -84,6 +87,11 @@ class Bot(object):
         minimax = self.minimax(depth=self.optimal_depth(), node=np.copy(self.field), max_player=True)
         self.print_debug('Column ' + str(minimax[1]) + ' has a heuristic of ' + str(minimax[0]))
         self.print_debug('Turn time: ' + str(time.time() - start))
+
+        if self.DEBUG_OUTPUT:
+            self.tot_time += time.time() - start
+            self.num_turns += 1.
+            self.print_debug('avg turn time: ' + str(self.tot_time / self.num_turns))
 
         self.print_debug(minimax[2])
 
@@ -180,22 +188,7 @@ class Bot(object):
             for player_id in [1, 2]:
                 for sequence_len in sequence_both[player_id - 1]:
                     totals[player_id] += self.heuristic_values[str(sequence_len) + '-row']
-        '''
-        for orientation in board_orientations:
-            for row in orientation:
-                for player_id in [1, 2]:
-                    for sequence_len in bh.sequences(row, player_id):
-                        totals[player_id] += self.heuristic_values[str(sequence_len) + '-row']
 
-        '''
-        '''
-        for board_orientation in board_orientations:
-            for row in board_orientation:
-                sequence_both = bh.sequences_of_each(row)
-                for player_id in totals.keys():
-                    for sequence_len in sequence_both[player_id - 1]:
-                        totals[player_id] += self.heuristic_values[str(sequence_len) + '-row']
-        '''
         '''
         sequences = bh.seq_short(board_orientations)
         for player_id in [1, 2]:
