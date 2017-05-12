@@ -1,15 +1,6 @@
 from itertools import chain, groupby
 
 
-def contains(parent_list, sub_list):
-    """See if a list contains the exact sequence of a sublist"""
-    for i in range(len(parent_list) - len(sub_list) + 1):
-        print parent_list[i:i + len(sub_list)]
-        if parent_list[i:i + len(sub_list)] == sub_list:
-            return True
-    return False
-
-
 def get_major_diagonals(arr2d, x_range, y_range):
     """
     Returns major diagonals (they go like this: \)
@@ -45,53 +36,8 @@ def get_minor_diagonals(arr2d, x_range, y_range):
     return get_major_diagonals(arr2d[::-1], x_range, y_range)
 
 
-def sequences(arr, val):
-    """Returns array of sequence lengths of a value in an array"""
-    # TODO: OPTIMIZE!!!!!!!
-    # TODO: Make it so 1, 1, 0, 1 counts as 3-row??
-    # List of lengths of sequences
-    seq = []
-    i = 0
-    array_length = len(arr)  # Saved as variable to reduce len() calls
-    while i < array_length - 1:
-        # If there's a row of at least two, start counting more
-        if arr[i] == arr[i + 1] == val:
-            # Initialize the sequence length to two
-            seq += [2]
-            end_val = array_length
-            seq_index = len(seq) - 1
-
-            # See if sequence is longer than two
-            for j in range(i + 2, array_length):
-                # Increment the sequence length if it's continued
-                if arr[j] == val:
-                    seq[seq_index] += 1
-                # If the sequence is broken:
-                else:
-                    # The index of the last item in the sequence
-                    end_val = j - 1
-                    # Only save the sequence if it has a 0 on either side of it and sequence is in middle
-                    if i > 0:
-                        if not (arr[j] == 0 or arr[i - 1] == 0) and seq[seq_index] < 4:
-                            seq.pop()
-                    # If the sequence starts at the first column, only save if it has a 0 after it
-                    elif i == 0:
-                        if arr[j] != 0 and seq[seq_index] < 4:
-                            seq.pop()
-                    break
-            # If the sequence goes until the end of the array, remove it unless it has a 0 before it
-            if end_val == array_length and arr[i - 1] != 0 and seq[seq_index] < 4:
-                seq.pop()
-            # Set the for loop to start where the sequence ended
-            i = end_val
-        i += 1
-
-    # Rounds  any value greater than 4 down to 4
-    seq = [4 if val > 4 else val for val in seq]
-    return seq
-
-
 def get_sequence(arr, val, index, array_length):
+    # TODO: OPTIMIZE!!!!!!!
     # Initialize the sequence length to two
     sequence_length = 2
     end_val = array_length
@@ -104,7 +50,7 @@ def get_sequence(arr, val, index, array_length):
         # If the sequence is broken:
         else:
             # The index of the last item in the sequence
-            end_val = j - 1
+            end_val = j
             # Only save the sequence if it has a 0 on either side of it and sequence is in middle of row
             if index > 0:
                 if not (arr[j] == 0 or arr[index - 1] == 0) and sequence_length < 4:
@@ -113,6 +59,9 @@ def get_sequence(arr, val, index, array_length):
             elif index == 0:
                 if arr[j] != 0 and sequence_length < 4:
                     sequence_length = -1
+            # If there's some case such as 1, 1, 0, 1 count it as a sequence of 3
+            if j < array_length - 1 and arr[j] == 0 and arr[j+1] == val:
+                sequence_length = 3 if sequence_length == 2 else sequence_length
             break
     # If the sequence goes until the end of the array, remove it unless it has a 0 before it
     if end_val == array_length and arr[index - 1] != 0 and sequence_length < 4:
@@ -123,8 +72,6 @@ def get_sequence(arr, val, index, array_length):
 
 def sequences_of_each(arr, val1=1, val2=2):
     """Returns array of sequence lengths of a value in an array"""
-    # TODO: OPTIMIZE!!!!!!!
-    # TODO: Make it so 1, 1, 0, 1 counts as 3-row??
     # List of lengths of sequences
     seq1 = []
     seq2 = []
@@ -142,7 +89,8 @@ def sequences_of_each(arr, val1=1, val2=2):
             i = f[0]
             if f[1] != -1:
                 seq2 += [f[1]]
-        i += 1
+        else:
+            i += 1
 
     # Rounds  any value greater than 4 down to 4
     seq1 = [4 if val > 4 else val for val in seq1]
@@ -160,7 +108,6 @@ def seq_short(board_orientations):
             player_id, sequence_length = groups[i]
             if player_id != 0 and sequence_length >= 2:
                 # Sorry for multiple if statements!.. couldn't think of any cleaner way to write it
-
                 # If it starts at beginning, check if followed by a 0 (empty space)
                 if i == 0 and groups[i + 1][0] == 0:
                     seq[player_id - 1] += [sequence_length]
