@@ -84,7 +84,7 @@ class Bot(object):
             return self.place_token(3)
 
         start = time.time()
-        minimax = self.minimax(depth=self.optimal_depth(), node=np.copy(self.field), max_player=True)
+        minimax = self.minimax(depth=self.optimal_depth(), node=self.field, max_player=True)
         self.print_debug('Column ' + str(minimax[1]) + ' has a heuristic of ' + str(minimax[0]))
         self.print_debug('Turn time: ' + str(time.time() - start))
 
@@ -160,14 +160,14 @@ class Bot(object):
         """Returns array or possible moves given a board state"""
         moves = []
         for c in range(self.columns()):
-            move = self.simulate_move(column=c, board=board, player_id=player_id)
+            move = self.simulate_move(column=c, input_board=board, player_id=player_id)
             if move is not None:
                 moves.append((move, c))
         return moves
 
-    def simulate_move(self, column, board, player_id):
+    def simulate_move(self, column, input_board, player_id):
         """Returns board with token placed in specific column"""
-        board = np.copy(board)
+        board = np.copy(input_board)
         if self.can_move(board, column):
             # Since the bottom row is index 5, starts at 5 and decrements through 0
             for r in range(self.rows() - 1, -1, -1):

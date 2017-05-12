@@ -1,7 +1,7 @@
 import pstats
 
 # https://docs.python.org/2/library/profile.html
-file_name = 'stats'
+file_name = 'seq_each'
 
 p = pstats.Stats(file_name)
 
