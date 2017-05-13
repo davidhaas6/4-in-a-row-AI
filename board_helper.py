@@ -120,11 +120,11 @@ def seq_short(board_orientations):
     return seq
 
 
-def is_game_won(board_orientations):
-    # Every possible orientation of the board
-
+def is_game_over(board_orientations):
     for line in chain(*board_orientations):
         for player_id, group in groupby(line):
             if player_id != 0 and len(list(group)) >= 4:
                 return player_id
-    return False
+
+    # Checks if the game board is full (tied)
+    return 0 not in board_orientations[0][0]
